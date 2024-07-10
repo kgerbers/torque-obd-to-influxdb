@@ -1,6 +1,6 @@
 {
   "name": "torque-obd-to-influxdb",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Expose API to feed OBD data into InfluxDB",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,8 @@
   "author": "Frank Wammes",
   "license": "ISC",
   "dependencies": {
-    "influx": "^5.0.4",
-    "restify": "^4.3.0"
+    "@influxdata/influxdb-client": "*",
+    "restify": "*",
+    "bunyan": "*"
   }
 }

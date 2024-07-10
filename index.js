@@ -1,89 +1,57 @@
-const Influx = require('influx');
+#!/usr/bin/env node
+//////////////////////////////////////////
+// Shows how to use InfluxDB write API. //
+//////////////////////////////////////////
+
+import {InfluxDB, Point, HttpError} from '@influxdata/influxdb-client'
+import {url, token, org, bucket} from './env.mjs'
+import {hostname} from 'node:os'
+
 const Restify = require('restify');
 const restify = Restify.createServer();
-const bunyan = require('bunyan');
-
-const log = bunyan.createLogger({
-    name: 'car-obd',
-    stream: process.stdout,
-    level: 'debug'
-});
 
 let speed = 10;
 
 const PID_DICT = require('./pid_dictionary.json');
 
-const DATABASE_NAME = process.env.DB_NAME || 'car_obd';
+const DATABASE_NAME = process.env.DB_NAME || 'torque_data';
 const DATABASE_HOST = process.env.DB_HOST || 'localhost';
 const HTTP_PORT = parseInt(process.env.HTTP_PORT || '3001');
 
-const influx = new Influx.InfluxDB({
-    host: DATABASE_HOST,
-    database: DATABASE_NAME
-});
 
-influx.getDatabaseNames()
-    .then(names => {
-        if (!names.includes(DATABASE_NAME)) {
-            log.info(`Created database "${DATABASE_NAME}".`);
-            return influx.createDatabase(DATABASE_NAME);
-        } else {
-            log.info(`Database "${DATABASE_NAME}" already exists.`);
-        }
-    })
-    .then(() => {
-        restify.use(Restify.queryParser());
-        restify.listen(HTTP_PORT, function () {
-            log.info(`Listening on port ${HTTP_PORT}.`);
-        });
+console.log('*** WRITE POINTS ***')
+// create a write API, expecting point timestamps in nanoseconds (can be also 's', 'ms', 'us')
+const writeApi = new InfluxDB({url, token}).getWriteApi(org, bucket, 'ns')
+// setup default tags for all writes through this API
+writeApi.useDefaultTags({location: hostname()})
 
-        restify.get('/torque', (req, res, next) => {
-            log.info({
-                req: req
-            }, 'Got /torque');
+// write point with the current (client-side) timestamp
+const point1 = new Point('temperature')
+  .tag('example', 'write.ts')
+  .floatField('value', 20 + Math.round(100 * Math.random()) / 10)
+writeApi.writePoint(point1)
+console.log(` ${point1}`)
+// write point with a custom timestamp
+const point2 = new Point('temperature')
+  .tag('example', 'write.ts')
+  .floatField('value', 10 + Math.round(100 * Math.random()) / 10)
+  .timestamp(new Date()) // can be also a number, but in writeApi's precision units (s, ms, us, ns)!
+writeApi.writePoint(point2)
+console.log(` ${point2.toLineProtocol(writeApi)}`)
 
-            let keys = {};
-
-            for(const k in req.query) {
-                if (Object.hasOwnProperty.call(req.query, k) && /^k/.test(k)) {
-                    const val = parseFloat(req.query[k]);
-                    const name = PID_DICT[k] || 'not_found';
-                    log.debug({
-                        key: k,
-                        keyName: name,
-                        value: val
-                    }, 'Got Torque queryString parameter');
-                    keys[name] = val;
-                } else {
-                    log.debug({
-                        key: k,
-                        value: req.query[k]
-                    }, 'Ignored queryString parameter');
-                }
-            }
-
-            log.debug({
-                keys: keys
-            }, 'queryString parameters are parsed');
-
-            influx.writeMeasurement('car', [
-                {
-                    fields: keys,
-                    timestamp: new Date(parseInt(req.query.time))
-                }
-            ]).then(() => {
-                log.debug('Wrote points to influx');
-            }).catch(err => {
-                log.error(`Error saving data to InfluxDB! ${err}`)
-            });
-            res.send(200, 'OK!');
-            log.debug('Sent response, 200: OK!');
-            next();
-            return;
-        });
-
-    })
-    .catch(err => {
-        log.error(`Error creating Influx database "${DATABASE_NAME}"!`, err);
-    });
-
+// WriteApi always buffer data into batches to optimize data transfer to InfluxDB server.
+// writeApi.flush() can be called to flush the buffered data. The data is always written
+// asynchronously, Moreover, a failed write (caused by a temporary networking or server failure)
+// is retried automatically. Read `writeAdvanced.js` for better explanation and details.
+//
+// close() flushes the remaining buffered data and then cancels pending retries.
+try {
+  await writeApi.close()
+  console.log('FINISHED ... now try ./query.ts')
+} catch (e) {
+  console.error(e)
+  if (e instanceof HttpError && e.statusCode === 401) {
+    console.log('Run ./onboarding.js to setup a new InfluxDB database.')
+  }
+  console.log('\nFinished ERROR')
+}
