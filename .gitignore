@@ -1,3 +1,5 @@
 grafana
 influxdb
 node_modules
+.idea/*
+.env

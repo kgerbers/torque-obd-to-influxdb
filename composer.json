@@ -1,0 +1,29 @@
+{
+    "name": "statamic/statamic",
+    "description": "Statamic",
+    "keywords": [
+        "statamic",
+        "cms",
+        "flat file",
+        "laravel"
+    ],
+    "type": "project",
+    "require": {
+        "php": "^8.2",
+        "ext-json": "*",
+        "ext-dom": "*",
+        "guzzlehttp/guzzle": "^7.5",
+        "influxdata/influxdb-client-php": "*"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "pixelfear/composer-dist-plugin": true,
+            "php-http/discovery": true,
+            "cweagans/composer-patches": true
+        }
+    }
+}

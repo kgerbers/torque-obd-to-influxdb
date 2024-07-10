@@ -1,6 +1,7 @@
-node_modules
-grafana
-influxdb
 docker-compose.yml
 .gitignore
 README.md
+docker/*
+.idea/*
+.env
+.env.example
