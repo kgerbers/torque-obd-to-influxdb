@@ -8,8 +8,9 @@ ARG APP_BUILT_ENV
 
 RUN userdel -f www-data &&\
     if getent group www-data ; then groupdel www-data; fi &&\
-    groupadd -g ${GROUP_ID} www-data &&\
-    useradd -l -u ${USER_ID} -g www-data www-data &&\
+    groupadd -g 1000 www-data &&\
+    useradd -l -u 1000 -g www-data www-data &&\
+    useradd -l -u 1000 -g www-data www-data &&\
     install -d -m 0755 -o www-data -g www-data /home/www-data;
 
 RUN apt-get update && apt-get install -y ca-certificates curl gnupg && \

@@ -16,7 +16,8 @@
         "illuminate/collections": "^11.15",
         "influxdata/influxdb-client-php": "*",
         "larapack/dd": "1.*",
-        "monolog/monolog": "^3.7"
+        "monolog/monolog": "^3.7",
+        "php-mqtt/client": "^2.1"
     },
     "config": {
         "optimize-autoloader": true,
