@@ -8,10 +8,12 @@ class Request {
 
     private \Illuminate\Support\Collection $query;
     private \Illuminate\Support\Collection $body;
+    private \Illuminate\Support\Collection $headers;
     function __construct()
     {
         $this->query = collect();
         $this->body = collect();
+        $this->headers = collect();
         foreach ($_GET as $k => $v) {
             $this->sanitize($k);
             $this->sanitize($v);
@@ -24,6 +26,13 @@ class Request {
             $this->sanitize($v);
 
             $this->body->put($k, $v);
+        }
+
+        foreach (getallheaders() as $k => $v) {
+            $this->sanitize($k);
+            $this->sanitize($v);
+
+            $this->headers->put($k, $v);
         }
     }
 

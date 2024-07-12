@@ -3,8 +3,9 @@
 namespace Exporters;
 
 use Illuminate\Support\Collection;
+use InfluxDB2;
 
-class InfluxDbExport implements ExportInterface
+class InfluxDbExport # implements Exporters\ExportInterface
 {
 
     protected InfluxDB2\Client $client;
@@ -26,26 +27,26 @@ class InfluxDbExport implements ExportInterface
         ]);
     }
 
-    public function format(string $name, string $time, Collection $data, array $tags)
+    public function format(\WayPoint $wayPoint)
     {
         return [
-            'name' => 'temp_c',
-            'tags' => ['location' => 'CAR_NAME'],
-            'fields' => ['INSERT ALL RECEIVED GET VALUES HERE, IF NOT META DATA'],
-            'time' => microtime(true)
+            'name' => $wayPoint->id,
+            'tags' => [
+                'session' => $wayPoint->session,
+                'version' => $wayPoint->v,
+                'eml' => $wayPoint->eml,
+            ],
+            'fields' => $wayPoint->data->toArray(),
+            'time' => $wayPoint->time->getTimestamp()
         ];
     }
 
-    public function export(Collection $data)
+    public function export(array $data)
     {
         $writeApi =  $this->client->createWriteApi();
 
-
-// test data @todo: change to torque get input
-
-
         try {
-            $writeApi->write($dataArray, InfluxDB2\Model\WritePrecision::S, $bucket, $org);
+            $writeApi->write($data, InfluxDB2\Model\WritePrecision::S, getenv('BUCKET'), getenv('ORG'));
         } catch (Exception $e) {
             var_dump($e);
         }

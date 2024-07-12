@@ -37,7 +37,7 @@ class MqttExport implements ExportInterface
         ];
     }
 
-    public function export(Collection $data)
+    public function export(array $data)
     {
         $data = $this->format('torque', (new \DateTime())->getTimestamp(), $data, []);
 

@@ -10,5 +10,5 @@ interface ExportInterface
 
         public function format(string $name, string $time, Collection $data, array $tags);
 
-        public function export(Collection $data);
+        public function export(array $data);
 }
