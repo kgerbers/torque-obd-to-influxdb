@@ -18,10 +18,9 @@ $request = new Request();
 
 $log->log("https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]", $request->getAll()->toArray(), Monolog\Level::Debug);
 
-$waypoint = new WayPoint($request);
-
-dd($request->getAll(),$waypoint);
-# You can generate a Token from the "Tokens Tab" in the UI
+// first only log, then enable and continue building
+//$waypoint = new WayPoint($request);
 
 
+// required response by Torque application
 echo "OK!";
