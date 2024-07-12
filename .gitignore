@@ -3,3 +3,7 @@ influxdb
 node_modules
 .idea/*
 .env
+
+vendor
+vendor/**
+storage/Logs/*

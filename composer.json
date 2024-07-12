@@ -10,10 +10,13 @@
     "type": "project",
     "require": {
         "php": "^8.2",
-        "ext-json": "*",
         "ext-dom": "*",
+        "ext-json": "*",
         "guzzlehttp/guzzle": "^7.5",
-        "influxdata/influxdb-client-php": "*"
+        "illuminate/collections": "^11.15",
+        "influxdata/influxdb-client-php": "*",
+        "larapack/dd": "1.*",
+        "monolog/monolog": "^3.7"
     },
     "config": {
         "optimize-autoloader": true,

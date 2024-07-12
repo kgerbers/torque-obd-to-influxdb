@@ -26,6 +26,8 @@ RUN mkdir -p /usr/local/etc/openssl/ && \
         git \
         supervisor \
         nginx \
+        libzip-dev \
+        libxml2-dev \
      && apt-get clean all;
 
 # Configure php packages
@@ -36,15 +38,16 @@ RUN docker-php-ext-install \
         intl \
         opcache \
         soap \
+        zip \
         xml;
 
 RUN  php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer
 
 # For enabling npm running inside the container
-RUN mkdir -p "/root/.npm/_cacache/tmp" && \
-    mkdir -p "/root/.npm/_logs" && \
-    chown -R ${USER_ID}:${GROUP_ID} "/root/.npm" && \
-    chmod -R 777 /root/.npm/
+RUN mkdir -p "/root/.composer/" && \
+    mkdir -p "/root/.composer/cache/vcs" && \
+    chown -R 1000:1000 "/root/.composer/" && \
+    chmod -R 777 /root/.composer/
 
 # put configs in place
 COPY "./php.ini" /usr/local/etc/php/php.ini
